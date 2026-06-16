@@ -53,8 +53,8 @@ Compilamos as armadilhas e focos de estudo relatados por quem já passou na prov
 
 ```mermaid
 graph LR
-    A[Working Directory\n(Modified)] -->|git add| B[Staging Area\n(Staged)]
-    B -->|git commit| C[Local Repository\n(Committed)]
+    A["Working Directory<br>(Modified)"] -->|git add| B["Staging Area<br>(Staged)"]
+    B -->|git commit| C["Local Repository<br>(Committed)"]
 ```
 
 - **Modified:** Arquivo alterado, mas não salvo no banco de dados do git.
