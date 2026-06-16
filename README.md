@@ -10,6 +10,21 @@ Bem-vindo ao repositório definitivo para a certificação **GitHub Foundations*
 - [GitHub Foundations - Part 2](https://learn.microsoft.com/en-us/training/paths/github-foundations-2/)
 - [Página da Certificação](https://resources.github.com/learn/certifications/)
 
+**Deep Research & Links Úteis Oficiais:**
+- [GitHub Flow (Fluxo de Trabalho)](https://docs.github.com/pt/get-started/using-github/github-flow)
+- [Alertas do Dependabot](https://docs.github.com/pt/code-security/concepts/supply-chain-security/dependabot-alerts)
+- [Secret Scanning](https://docs.github.com/pt/code-security/concepts/secret-security/secret-scanning)
+- [GitHub Actions (CI/CD)](https://docs.github.com/pt/actions/get-started/understand-github-actions)
+- [GitHub Pages](https://docs.github.com/pt/pages/getting-started-with-github-pages/what-is-github-pages)
+- [Sintaxe de Markdown](https://docs.github.com/pt/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax)
+- [Central GitHub Docs (Hub)](https://docs.github.com/pt)
+
+**Índices e Navegação:**
+- 🏆 **[Guia Definitivo de Preparação para o Exame](./exam-guide/README.md)** *(Start Here!)*
+- [Resumo da Parte 1](./Part-1/README.md)
+- [Resumo da Parte 2](./Part-2/README.md)
+- [Repositório de Arquivos Docs](./docs/README.md)
+
 ---
 
 ## Sumário de Conteúdos

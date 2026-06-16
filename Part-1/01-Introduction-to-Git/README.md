@@ -71,6 +71,12 @@ git add . # Adiciona tudo
 git commit -m "Adiciona funcionalidade X"
 ```
 
+### Repositórios Remotos
+Trabalhando com o GitHub:
+- `git remote add origin [URL]`: Conecta seu repositório local ao GitHub.
+- `git push -u origin main`: Envia (sobe) seus commits locais para a nuvem.
+- `git pull`: Puxa (baixa) as alterações da nuvem para a sua máquina.
+
 ### Verificando o Histórico
 ```bash
 # Mostra o log de commits
@@ -78,5 +84,9 @@ git log
 git log --oneline --graph
 ```
 
+---
+
 > [!TIP]
-> Use `git status` frequentemente para saber exatamente onde você está no fluxo de trabalho.
+> **📚 Leitura Oficial Recomendada:** Acesse a pasta `docs/` do nosso projeto para baixar os PDFs oficiais das **[Folhas de Dicas do Git (Git Cheat Sheets)](../../docs/README.md#📝-guias-rápidos-git-cheat-sheets)**. Elas resumem de forma muito visual todos os comandos acima para uso no dia a dia!
+
+---

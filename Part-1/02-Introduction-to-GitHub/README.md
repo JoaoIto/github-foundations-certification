@@ -53,7 +53,21 @@ sequenceDiagram
     User->>GitHub: 6. Delete the Branch
 ```
 
-## 4. Comandos de Interação com o GitHub
+## 4. Resolvendo Conflitos de Merge
+- Conflitos ocorrem quando duas pessoas editam a mesma linha de um arquivo ou quando um arquivo é deletado enquanto outro o edita.
+- O Git marca o arquivo com os marcadores de conflito (`<<<<<<<`, `=======`, `>>>>>>>`).
+- O desenvolvedor deve editar o arquivo manualmente, escolher qual código manter (ou mesclar ambos) e depois commitar a resolução.
+
+---
+
+> [!TIP]
+> **📚 Leituras Oficiais Recomendadas:**
+> - **[Como Funciona o GitHub Flow (Diagramado)](../../docs/README.md#1-o-github-flow):** Entenda visualmente o ciclo de vida completo de uma branch até o PR.
+> - **[Sintaxe de Markdown no GitHub](../../docs/README.md#6-sintaxe-de-markdown):** Aprenda a formatar as issues e READMEs que você vai criar em seus repositórios.
+
+---
+
+## 5. Comandos de Interação com o GitHub
 
 ```bash
 # Adicionar um repositório remoto (linkar seu repo local com o GitHub)
