@@ -1,69 +1,111 @@
-[⬅️ Módulo Anterior](../04-Introduction-GitHub-administration/README.md) | [🏠 Voltar ao Início](../../README.md)
+[⬅️ Módulo Anterior](../04-Introduction-GitHub-administration/README.md) | [🏠 Voltar ao Início](../../README.md) | [Próximo Módulo ➡️](../06-Introduction-to-pull-requests/README.md)
 ***
 
 # Authenticate and authorize user identities on GitHub
 
 > [!NOTE]
-> Este módulo mergulha profundamente em como o GitHub gerencia o "Quem é você?" (Autenticação) e "O que você pode fazer?" (Autorização).
+> Este módulo detalha as opções de autenticação e autorização no GitHub Enterprise. A segurança começa com a verificação de identidade e continua garantindo que usuários possuam os acessos corretos através de ferramentas organizacionais robustas.
 
-## 1. Autenticação (Authentication) vs. Autorização (Authorization)
+## 1. Gerenciamento de Identidade e Acesso
 
-Para gerenciar o acesso de forma segura, é preciso entender a diferença entre os dois conceitos:
+A autenticação é a porta de entrada. Interações seguras com o GitHub começam na identidade. Embora contas individuais usem usuário/senha, empresas exigem métodos avançados (2FA, senhas biométricas).
 
-- **Autenticação (AuthN):** O processo de verificar a identidade de um usuário. Responde à pergunta: *"Você é realmente quem diz ser?"*. (Ex: Login com usuário/senha + Token SMS).
-- **Autorização (AuthZ):** O processo de verificar quais recursos o usuário tem permissão para acessar após ser autenticado. Responde à pergunta: *"Você tem permissão para modificar o repositório X?"*. (Ex: Permissão de Read, Write, Admin).
+### Métodos Modernos de Autenticação
+- **Chaves de acesso (WebAuthn):** Login sem senha, vinculado a dispositivos físicos (YubiKey) ou biometria. Resistente a phishing.
+- **GitHub Mobile para 2FA:** Aprovação segura via push notification.
+- **OAuth e GitHub Apps:** Ideal para automação e CI/CD, concedendo acesso restrito em vez de senhas completas.
+- **Enterprise Managed Users (EMU):** No GitHub Enterprise Cloud, garante que toda autenticação passe estritamente pelo Provedor de Identidade (IdP) da empresa, dando controle centralizado.
 
-## 2. Autenticação Pessoal e 2FA
+## 2. Autenticação de Usuário e SAML SSO
 
-O GitHub encoraja fortemente, e em muitos contextos exige, a **Autenticação em Duas Etapas (2FA)**.
-Se um administrador de Organização exigir 2FA, os membros que não a tiverem ativada serão removidos automaticamente da organização.
+O **Single Sign-On (SSO) SAML** permite que usuários façam login usando as credenciais corporativas (ex: Microsoft Entra ID, Okta).
 
-## 3. Single Sign-On (SAML SSO)
+### Níveis de Implementação de SAML
+| Nível | Escopo | Remoção de Usuário (Não Compatível) | Caso de Uso Ideal |
+|-------|--------|-------------------------------------|-------------------|
+| **Organizacional** | Uma organização específica | Imediata | Testes e pilotos limitados |
+| **Empresarial** | Toda a empresa (múltiplas orgs) | Adiada até o próximo acesso | Ampla conformidade unificada |
 
-Para empresas, gerenciar logins de centenas de funcionários individualmente é inviável e inseguro. O GitHub Enterprise oferece suporte a **SAML SSO** (Security Assertion Markup Language Single Sign-On).
+### Autenticação de Dois Fatores (2FA)
+A 2FA é essencial. Ao exigir 2FA para a organização, **todos os membros que não a ativarem são removidos automaticamente** (incluindo contas de bot).
 
-### O Fluxo SAML
+> [!WARNING]
+> O GitHub recomenda chaves FIDO2/U2F ou aplicativos TOTP (Time-based One-Time Passwords). O uso de SMS deve ser a última opção, sendo considerado menos seguro.
 
-```mermaid
-sequenceDiagram
-    participant User
-    participant GitHub
-    participant IdP as Identity Provider (e.g. Azure AD, Okta)
-    
-    User->>GitHub: Tenta acessar uma org corporativa
-    GitHub->>User: Redireciona para o IdP
-    User->>IdP: Faz o login corporativo
-    IdP->>User: Retorna um token SAML validado
-    User->>GitHub: Apresenta o token
-    GitHub->>GitHub: Concede acesso aos recursos corporativos
-```
+## 3. Autorização de Usuário (SCIM e PATs)
 
-**Identity Providers (IdP) Comuns:**
-- Microsoft Entra ID (antigo Azure AD)
-- Okta
-- Ping Identity
-- Google Workspace
+Após a autenticação (SSO SAML), vem a **autorização**.
+
+### Personal Access Tokens (PATs) de Granularidade Fina
+Diferente dos PATs clássicos (que davam acesso quase irrestrito), os PATs Fine-grained permitem restringir acessos a repositórios específicos, possuem data de expiração obrigatória e oferecem melhor rastreabilidade.
+
+### Automação com SCIM
+O **SCIM** (System for Cross-domain Identity Management) automatiza o *provisionamento* (criação) e o *desprovisionamento* (remoção) de usuários.
 
 > [!IMPORTANT]
-> Quando o SAML SSO é ativado, os desenvolvedores *ainda usam suas contas pessoais do GitHub*. Eles apenas vinculam sua conta pessoal à identidade corporativa (IdP) e precisam fazer um login "extra" (o login corporativo) diariamente para obter um token de sessão válido que permite ver os repositórios da empresa.
+> Sem o SCIM, o SSO SAML **não** suporta desprovisionamento automático. O usuário apenas perde o login, mas a conta não é desvinculada automaticamente das equipes. O SCIM é vital para remover instantaneamente acessos assim que um funcionário sai da empresa.
 
-## 4. Autorização: Papéis de Repositório (Repository Roles)
+## 4. Sincronização de Equipe (Team Synchronization)
 
-A autorização determina os botões que você pode clicar em um repositório. O GitHub tem níveis padrão:
+A Sincronização de Equipe mapeia "Grupos" do IdP (ex: um grupo no Azure AD) diretamente para "Teams" no GitHub.
 
-| Papel (Role) | Permissões (O que pode fazer) | Casos de Uso |
-|--------------|-------------------------------|--------------|
-| **Read** | Pode clonar, baixar o código, abrir Issues e comentar. *Não pode fazer push de código.* | Não-desenvolvedores, gerentes de produto, times de QA avaliando bugs. |
-| **Triage** | Tudo do Read + pode gerenciar Issues/PRs (fechar, atribuir labels), mas ainda *não pode alterar o código*. | Contribuidores externos que ajudam a organizar a fila de Issues. |
-| **Write** | Tudo do Triage + pode fazer `git push` para o repositório, mesclar PRs (merge). | Desenvolvedores ativamente codificando no projeto. |
-| **Maintain** | Tudo do Write + gerenciar configurações básicas do repo sem ter acesso a dados destrutivos. | Líderes técnicos da equipe. |
-| **Admin** | Acesso total. Pode deletar o repositório, gerenciar segurança (CodeQL, Secrets), adicionar/remover usuários. | Donos do projeto e administradores organizacionais. |
+```mermaid
+graph LR
+    A[Azure AD: Grupo 'DevOps'] -->|Team Sync| B[GitHub: Team 'DevOps']
+    C(Usuário adicionado no AD) -->|Auto Add| B
+    D(Usuário sai do AD) -->|Auto Remove| B
+```
 
-## 5. Autorização: Team Synchronization
+### Team Sync vs. Group SCIM no GHES
+Se você usa o **GitHub Enterprise Server (GHES)** (ambiente hospedado localmente):
+- **Team Sync:** Focado apenas em colocar usuários (que *já* possuem conta no GitHub) nas equipes corretas. Não provisiona contas novas.
+- **SCIM:** Focado em criar/remover a conta do usuário inteira, automatizando o ciclo de vida completo.
 
-Em grandes empresas, quando alguém sai da companhia (offboarding) ou muda de departamento, os admins esquecem de remover a permissão do GitHub. Isso é um risco grave de segurança.
+### Limites de Uso
+- Máximo de membros por equipe: 5.000
+- Máximo de membros por organização: 10.000
+- Máximo de equipes por organização: 1.500
 
-A **Team Synchronization (Sincronização de Equipes)** resolve isso conectando o IdP (ex: Azure AD) ao GitHub.
+---
 
-- O GitHub mapeia os "Grupos de Segurança" do IdP (ex: `Backend-Devs`) para um "GitHub Team".
-- Se um funcionário for demitido, o TI remove ele do Azure AD. Automaticamente, via SCIM/API, o acesso dele aos repositórios do GitHub é revogado instantaneamente, sem intervenção humana manual.
+## 📝 Avaliação do Módulo (Simulado)
+
+Teste seus conhecimentos baseados neste módulo. As respostas corretas estão ocultas para você tentar resolver primeiro!
+
+**1. Que tipo de autenticação de usuário é usado para verificar a identidade de um usuário em relação a um provedor de identidade conhecido?**
+- [ ] Autenticação de dois fatores (2FA)
+- [ ] Senha única baseada em tempo (TOTP)
+- [ ] Autenticação única SAML (SSO SAML)
+- [ ] Serviço de mensagens curtas (SMS)
+<details>
+<summary><b>Ver Resposta</b></summary>
+<b>Autenticação única SAML (SSO SAML).</b> O SSO SAML é a tecnologia que conecta o GitHub ao Provedor de Identidade (IdP) da sua empresa (ex: Okta, Azure AD) para verificar sua identidade corporativa.
+</details>
+
+**2. Você é um administrador e deseja habilitar a sincronização de equipe para sua organização. Quais permissões de instalação são necessárias para configurar a sincronização de equipe para o Microsoft Entra ID?**
+- [ ] Forneça o URL do locatário
+- [ ] Leia os perfis completos de todos os usuários.
+- [ ] Gere um token válido de Single Sign-on para Sistemas Web (SSWS).
+- [ ] Habilitar Single Sign-On (SSO) SAML
+<details>
+<summary><b>Ver Resposta</b></summary>
+<b>Leia os perfis completos de todos os usuários.</b> O Microsoft Entra ID requer permissões para leitura de perfil e acesso ao diretório para poder sincronizar os grupos. (A opção de SSWS é exigida pelo Okta).
+</details>
+
+**3. Onde o usuário se autentica após habilitar o Single Sign-On SAML?**
+- [ ] Com um login do GitHub
+- [ ] Com as credenciais da organização
+- [ ] Com o Provedor de Identidade (IdP)
+<details>
+<summary><b>Ver Resposta</b></summary>
+<b>Com o Provedor de Identidade (IdP).</b> Quando ativado, o GitHub redireciona automaticamente os usuários para a página do IdP da empresa para autenticação antes de conceder acesso aos recursos internos.
+</details>
+
+**4. Qual método de autenticação de dois fatores oferece suporte ao backup seguro de seus códigos de autenticação na nuvem?**
+- [ ] Senha única baseada em tempo (TOTP)
+- [ ] Serviço de mensagens curtas (SMS)
+- [ ] Chave de segurança
+<details>
+<summary><b>Ver Resposta</b></summary>
+<b>Senha única baseada em tempo (TOTP).</b> Aplicativos TOTP (como Microsoft Authenticator ou Authy) geram senhas baseadas em tempo e oferecem suporte a backup na nuvem, além de funcionarem offline, sendo o método recomendado pelo GitHub.
+</details>
